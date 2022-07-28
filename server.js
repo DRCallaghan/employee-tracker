@@ -217,7 +217,7 @@ const questions = [
     {
         type: 'list',
         name: `newEmployeeRoleId`,
-        message: `What is the email address of this intern?`,
+        message: `What is this employee's role?`,
         // only asking this question when the user wants to add an employee
         when(answers) {
             return answers.proceed === 'Add an Employee'
@@ -234,7 +234,7 @@ const questions = [
     {
         type: 'list',
         name: `newEmployeeManagerId`,
-        message: `What is the email address of this intern?`,
+        message: `Who is this employee's manager?`,
         // only asking this question when the user wants to add an employee
         when(answers) {
             return answers.proceed === 'Add an Employee'
@@ -297,10 +297,10 @@ const init = () => {
                         console.error(err);
                         // tabling the results
                     } else {
+                        updateInfo();
                         console.table(results);
                     }
                 });
-                updateInfo();
                 // running the prompt again
                 init();
             } else if (response.proceed == 'View All Roles') {
@@ -310,10 +310,10 @@ const init = () => {
                         console.error(err);
                         // tabling the results
                     } else {
+                        updateInfo();
                         console.table(results);
                     }
                 });
-                updateInfo();
                 // running the prompt again
                 init();
             } else if (response.proceed == 'View All Employees') {
@@ -323,10 +323,10 @@ const init = () => {
                         console.error(err);
                         // tabling the results
                     } else {
+                        updateInfo();
                         console.table(results);
                     }
                 });
-                updateInfo();
                 // running the prompt again
                 init();
             } else if (response.proceed == 'Add a Department') {
@@ -336,10 +336,10 @@ const init = () => {
                         console.error(err);
                         // tabling the results
                     } else {
+                        updateInfo();
                         console.log(`\nAdded the ${response.newDepartment} department!`);
                     }
                 });
-                updateInfo();
                 // running the prompt again
                 init();
             } else if (response.proceed == 'Add a Role') {
@@ -349,10 +349,10 @@ const init = () => {
                         console.error(err);
                     } else {
                         // logging results
+                        updateInfo();
                         console.log(`\nAdded the ${response.newRoleTitle} role!`);
                     }
                 });
-                updateInfo();
                 // running the prompt again
                 init();
             } else if (response.proceed == 'Add an Employee') {
@@ -363,10 +363,10 @@ const init = () => {
                         console.error(err);
                     } else {
                         // displaying the results
+                        updateInfo();
                         console.log(`\nAdded ${response.newEmployeeFirstName} ${response.newEmployeeLastName} to the employee database!`);
                     }
                 });
-                updateInfo();
                 // running the prompt again
                 init();
             } else if (response.proceed == 'Update an Employee Role') {
@@ -377,10 +377,10 @@ const init = () => {
                         console.error(err);
                         // tabling the results
                     } else {
+                        updateInfo();
                         console.log(`\nUpdated this employee's role!`);
                     }
                 });
-                updateInfo();
                 // running the prompt again
                 init();
             } else {
