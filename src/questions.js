@@ -30,6 +30,60 @@ db.query('SELECT CONCAT(department_id, ": ", department_name) AS department_name
     }
 });
 
+let roles = [];
+db.query('SELECT CONCAT(role_id, ": ", role_title) AS role_title FROM roles', function (err, results) {
+    // catching any errors
+    if (err) {
+        console.error(err);
+    } else {
+        // clearing the roles array if there is anything in it
+        roles.splice(0, 0);
+        // looping over the results object array
+        for (var i = 0; i < results.length; i++) {
+            var row = results[i];
+            // pushing each result into the roles array
+            roles.push(row.role_title);
+        }
+        return roles;
+    }
+});
+
+let managers = [];
+db.query('SELECT CONCAT(employee_first_name, " ", employee_last_name, " ID: ", employee_id) AS managerInfo FROM employees WHERE manager_id IS NULL', function (err, results) {
+    // catching any errors
+    if (err) {
+        console.error(err);
+    } else {
+        // clearing the managers array if there is anything in it
+        managers.splice(0, 0);
+        // looping over the results object array
+        for (var i = 0; i < results.length; i++) {
+            var row = results[i];
+            // pushing each result into the managers array
+            managers.push(row.managerInfo);
+        }
+        return managers;
+    }
+});
+
+let employees = [];
+db.query('SELECT CONCAT(employee_first_name, " ", employee_last_name, " ID: ", employee_id) AS employeeInfo FROM employees', function (err, results) {
+    // catching any errors
+    if (err) {
+        console.error(err);
+    } else {
+        // clearing the employees array if there is anything in it
+        employees.splice(0, 0);
+        // looping over the results object array
+        for (var i = 0; i < results.length; i++) {
+            var row = results[i];
+            // pushing each result into the employees array
+            employees.push(row.employeeInfo);
+        }
+        return employees;
+    }
+});
+
 // all questions for user input. changes depending on answer to proceed
 const questions = [
     {
@@ -112,74 +166,106 @@ const questions = [
     },
     {
         type: 'input',
-        name: `internName`,
-        message: `What is the name of this intern?`,
-        // only asking this question when the user wants to add an intern
+        name: `newEmployeeFirstName`,
+        message: `What is this employee's First Name?`,
+        // only asking this question when the user wants to add an employee
         when(answers) {
-            return answers.proceed === 'Add an Intern'
+            return answers.proceed === 'Add an Employee'
         },
         // validating that a string was given
-        validate: internName => {
-            if (typeof internName == 'string') {
+        validate: newEmployeeFirstName => {
+            if (typeof newEmployeeFirstName == 'string' && newEmployeeFirstName.length <= 30) {
                 return true;
             } else {
-                console.log('A intern is required for your team.');
+                console.log('Please enter a valid first name.');
                 return false;
             }
         }
     },
     {
         type: 'input',
-        name: `internId`,
-        message: `What is the employee ID of this intern?`,
-        // only asking this question when the user wants to add an intern
+        name: `newEmployeeLastName`,
+        message: `What is this employee's Last Name?`,
+        // only asking this question when the user wants to add an employee
         when(answers) {
-            return answers.proceed === 'Add an Intern'
+            return answers.proceed === 'Add an Employee'
         },
-        // validating that a number was given
-        validate: internId => {
-            if (/^\d+$/.test(internId)) {
+        // validating that a string was given
+        validate: newEmployeeLastName => {
+            if (typeof newEmployeeLastName == 'string' && newEmployeeLastName.length <= 30) {
                 return true;
             } else {
-                console.log('An ID number is required for your intern.');
+                console.log('Please enter a valid last name.');
                 return false;
             }
         }
     },
     {
-        type: 'input',
-        name: `internEmail`,
+        type: 'list',
+        name: `newEmployeeRoleId`,
         message: `What is the email address of this intern?`,
-        // only asking this question when the user wants to add an intern
+        // only asking this question when the user wants to add an employee
         when(answers) {
-            return answers.proceed === 'Add an Intern'
+            return answers.proceed === 'Add an Employee'
         },
-        // validating that an email was given
-        validate: internEmail => {
-            if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(internEmail)) {
-                return true;
-            } else {
-                console.log('An email address is required for your intern.');
-                return false;
-            }
+        choices: roles,
+        default: 0,
+        filter(answer) {
+            // fetching the role id based on the role name
+            let position = answer.search(/:/);
+            let roleRow = answer.substring(0, position);
+            return parseInt(roleRow);
         }
     },
     {
-        type: 'input',
-        name: `internSchool`,
-        message: `What school does Intern  attend?`,
-        // only asking this question when the user wants to add an intern
+        type: 'list',
+        name: `newEmployeeManagerId`,
+        message: `What is the email address of this intern?`,
+        // only asking this question when the user wants to add an employee
         when(answers) {
-            return answers.proceed === 'Add an Intern'
+            return answers.proceed === 'Add an Employee'
         },
-        // validating that a string was given
-        validate: internSchool => {
-            if (typeof internSchool == 'string') {
-                return true;
-            } else {
-                console.log('A School is required for your intern.');
-                return false;
-            }
+        choices: managers,
+        default: 0,
+        filter(answer) {
+            // fetching the manager id based on the manager name
+            let position = answer.search(/:/);
+            let managerRow = answer.substring(position + 1);
+            return parseInt(managerRow);
+        }
+    },
+    {
+        type: 'list',
+        name: `updateEmployeeId`,
+        message: `Which employee would you like to update?`,
+        // only asking this question when the user wants to update an employee role
+        when(answers) {
+            return answers.proceed === 'Update an Employee Role'
+        },
+        choices: employees,
+        default: 0,
+        filter(answer) {
+            // fetching the employee id based on the employee name
+            let position = answer.search(/:/);
+            let employeeRow = answer.substring(position + 1);
+            return parseInt(employeeRow);
+        }
+    },
+    {
+        type: 'list',
+        name: `updateRoleId`,
+        message: `Which role would you like to assign this employee?`,
+        // only asking this question when the user wants to update an employee role
+        when(answers) {
+            return answers.proceed === 'Update an Employee Role'
+        },
+        choices: roles,
+        default: 0,
+        filter(answer) {
+            // fetching the role id based on the role name
+            let position = answer.search(/:/);
+            let roleRow = answer.substring(0, position);
+            return parseInt(roleRow);
         }
     }
 ]

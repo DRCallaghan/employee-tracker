@@ -85,19 +85,8 @@ const init = () => {
                 // running the prompt again
                 init();
             } else if (response.proceed == 'Add an Employee') {
-                // fetching the manager id based on the manager name
-                let managerId = db.query('SELECT employee_id FROM employees WHERE CONCAT(employee_first_name, " ", employee_last_name) = ?', response.newEmployeeManager, function (err, results) {
-                    // catching any errors
-                    if (err) {
-                        console.error(err);
-                    } else {
-                        return results;
-                    }
-                });
-                // declaring an inserter array for the full query
-                let inserter = [response.newEmployeeFirstName, response.newEmployeeLastName, response.newEmployeeRoleId, managerId];
                 // querying the db to insert the new employee
-                db.query('INSERT INTO employees (employee_first_name, employee_last_name, role_id, manager_id) VALUES (?)', inserter, function (err, results) {
+                db.query('INSERT INTO employees (employee_first_name, employee_last_name, role_id, manager_id) VALUES (?, ?, ?, ?)', [response.newEmployeeFirstName, response.newEmployeeLastName, response.newEmployeeRoleId, response.newEmployeeManagerId], function (err, results) {
                     // catching any errors
                     if (err) {
                         console.error(err);
@@ -109,33 +98,14 @@ const init = () => {
                 // running the prompt again
                 init();
             } else if (response.proceed == 'Update an Employee Role') {
-                // fetching the employee id based on the employee name
-                let employeeId = db.query('SELECT employee_id FROM employees WHERE CONCAT(employee_first_name, " ", employee_last_name) = ?', response.updateEmployeeName, function (err, results) {
-                    // catching any errors
-                    if (err) {
-                        console.error(err);
-                    } else {
-                        return results;
-                    }
-                });
-                // fetching the role id based on the role name
-                let roleId = db.query('SELECT role_id FROM roles WHERE role_id = ?', response.updateEmployeeRole, function (err, results) {
-                    // catching any errors
-                    if (err) {
-                        console.error(err);
-                    } else {
-                        return results;
-                    }
-                });
-                // declaring an inserter array for the full query
-                let inserter = [employeeId, roleId];
-                db.query('UPDATE employees SET role_id = ? WHERE employee_id = ?', inserter, function (err, results) {
+                // querying the db to update the employee's role
+                db.query('UPDATE employees SET role_id = ? WHERE employee_id = ?', [response.updateRoleId, response.updateEmployeeId], function (err, results) {
                     // catching any errors
                     if (err) {
                         console.error(err);
                         // tabling the results
                     } else {
-                        console.log(`Updated ${response.updateEmployeeName}'s Role to ${response.updateEmployeeRole}!`);
+                        console.log(`Updated this employee's role!`);
                     }
                 });
                 // running the prompt again
