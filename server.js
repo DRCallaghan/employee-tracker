@@ -1,8 +1,7 @@
 // importing dependencies
-const { table } = require('console');
+const cTable = require('console.table');
 const inquirer = require('inquirer');
 const mysql = require('mysql2');
-const { title } = require('process');
 
 // Connect to database
 const db = mysql.createConnection(

@@ -31,6 +31,7 @@
   - [Node.js](https://nodejs.org/en/)
   - [Inquirer](https://www.npmjs.com/package/inquirer)
   - [mysql2](https://www.npmjs.com/package/mysql2)
+  - [console.table](https://www.npmjs.com/package/console.table)
 
   ## Contribution
   There are no guidelines for contribution as this project is closed.
