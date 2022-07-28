@@ -2,6 +2,8 @@
 const { table } = require('console');
 const inquirer = require('inquirer');
 const mysql = require('mysql2');
+const { title } = require('process');
+const questions = require('./src/questions.js');
 
 // Connect to database
 const db = mysql.createConnection(
@@ -21,7 +23,7 @@ const init = () => {
     inquirer
         .prompt(questions)
         .then((response) => {
-            if (response.proceed == 'view all departments') {
+            if (response.proceed == 'View All Departments') {
                 // running a query to select only the department id and name
                 db.query('SELECT * FROM departments', function (err, results) {
                     // catching any errors
@@ -34,7 +36,7 @@ const init = () => {
                 });
                 // running the prompt again
                 init();
-            } else if (response.proceed == 'view all roles') {
+            } else if (response.proceed == 'View All Roles') {
                 db.query('SELECT roles.role_id, roles.role_title, roles.role_salary, departments.department_name FROM roles JOIN departments ON roles.department_id = departments.department_id ORDER BY roles.role_id ASC', function (err, results) {
                     // catching any errors
                     if (err) {
@@ -46,7 +48,7 @@ const init = () => {
                 });
                 // running the prompt again
                 init();
-            } else if (response.proceed == 'view all employees') {
+            } else if (response.proceed == 'View All Employees') {
                 db.query('SELECT employees.employee_id, employees.employee_first_name, employees.employee_last_name, roles.role_title, departments.department_name as Department, roles.role_salary, CONCAT(manager.employee_first_name, " ", manager.employee_last_name) as manager FROM employees LEFT JOIN roles ON employees.role_id = roles.role_id LEFT JOIN departments ON roles.department_id = departments.department_id LEFT JOIN employees manager ON manager.employee_id = employees.manager_id', function (err, results) {
                     // catching any errors
                     if (err) {
@@ -58,7 +60,7 @@ const init = () => {
                 });
                 // running the prompt again
                 init();
-            } else if (response.proceed == 'add a department') {
+            } else if (response.proceed == 'Add a Department') {
                 db.query('INSERT INTO departments (department_name) VALUES (?)', response.newDepartment, function (err, results) {
                     // catching any errors
                     if (err) {
@@ -70,20 +72,19 @@ const init = () => {
                 });
                 // running the prompt again
                 init();
-            } else if (response.proceed == 'add a role') {
-                let inserter = [response.newRoleTitle, response.newRoleSalary, response.newRoleDepartmentId];
-                db.query('INSERT INTO roles (role_title, role_salary, department_id) VALUES (?)', inserter, function (err, results) {
+            } else if (response.proceed == 'Add a Role') {
+                db.query('INSERT INTO roles (role_title, role_salary, department_id) VALUES (?, ?, ?)', [response.newRoleTitle, response.newRoleSalary, response.newRoleDepartment], function (err, results) {
                     // catching any errors
                     if (err) {
                         console.error(err);
-                        // tabling the results
                     } else {
+                        // logging results
                         console.log(`Added the ${response.newRoleTitle} role!`);
                     }
                 });
                 // running the prompt again
                 init();
-            } else if (response.proceed == 'add an employee') {
+            } else if (response.proceed == 'Add an Employee') {
                 // fetching the manager id based on the manager name
                 let managerId = db.query('SELECT employee_id FROM employees WHERE CONCAT(employee_first_name, " ", employee_last_name) = ?', response.newEmployeeManager, function (err, results) {
                     // catching any errors
@@ -107,7 +108,7 @@ const init = () => {
                 });
                 // running the prompt again
                 init();
-            } else if (response.proceed == 'update an employee role') {
+            } else if (response.proceed == 'Update an Employee Role') {
                 // fetching the employee id based on the employee name
                 let employeeId = db.query('SELECT employee_id FROM employees WHERE CONCAT(employee_first_name, " ", employee_last_name) = ?', response.updateEmployeeName, function (err, results) {
                     // catching any errors
@@ -141,9 +142,12 @@ const init = () => {
                 init();
             } else {
                 console.log(`Thank you for choosing Dennis Callaghan's Employee Tracker! To donate to the cause, please visit https://www.paypal.com/paypalme/my/profile to support my future projects.`);
+                process.exit(0);
             }
         });
 }
+
+init();
 
 // keep adding db queries and console tables as needed for all future options
 // add src file for questions and flush out inquirer prompt
